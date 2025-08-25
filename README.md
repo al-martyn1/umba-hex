@@ -39,7 +39,7 @@
 
 # Синтаксис описания диаграмм
 
-Синтаксис описания диаграмм основан на синтаксисе диаграмм [mermaid packet diagram](https://mermaid.js.org/syntax/packet.html#examples),
+Синтаксис описания диаграмм основан на синтаксисе диаграмм [mermaid packet diagram](https://mermaid.js.org/syntax/packet.html),
 с некоторыми расширениями:
 
 - в `mermaid packet diagram`-ах последовательность символов `%%` начинает однострочный коментарий.
