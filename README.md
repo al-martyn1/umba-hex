@@ -103,7 +103,7 @@ title Frame
 
 0-5: "Header"
 uint8[1]: "Paylod"
-uint32: "CRC" %% #! %% CRC 0-6 poly 0x1234 be
+uint32: "CRC" %%#! CRC 0-6 poly 0x1234 be
 ```
 
 **Графическая иллюстрация раскладки данных**
