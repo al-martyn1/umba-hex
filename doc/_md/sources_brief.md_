@@ -1,0 +1,14 @@
+---
+Title: Brief Description for Project Sources
+Generator: Umba Brief Scanner
+---
+
+
+
+# _src/umba-template
+
+- `AppConfig.h` - 
+- `AppVerConfig.h` - 
+- `ArgParser.h` - 
+- `log.h` - 
+- `umba-template.cpp` - 
