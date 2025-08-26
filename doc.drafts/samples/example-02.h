@@ -3,11 +3,11 @@ struct HarwareInfo
 {
     std::char       deviceName[14];           // 0 - 13
     std::uint64_t   uint64;                   // 14 - 21
-    std::uint8_t    hwHi;                     // 22
-    std::uint8_t    hwLo;                     // 23
-    std::uint16_t   manY;                     // 24 - 25
-    std::uint8_t    manM;                     // 26
-    std::uint8_t    manD;                     // 27
+    std::uint8_t    hardwareRevisionMajor;    // 22
+    std::uint8_t    hardwareRevisionMinor;    // 23
+    std::uint16_t   manufacturedYear;         // 24 - 25
+    std::uint8_t    manufacturedMonth;        // 26
+    std::uint8_t    manufacturedDay;          // 27
     std::uint16_t   batch;                    // 28 - 29
     std::uint8_t    serialNumber[8];          // 30 - 37
     std::uint16_t   signatureLe;              // 38 - 39

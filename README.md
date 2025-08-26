@@ -12,6 +12,10 @@
   - [Диаграмма, 32 байта шириной](#диаграмма-32-байта-шириной)
   - [Диаграмма, 64 байт шириной](#диаграмма-64-байт-шириной)
   - [Сгенерированный C/C++ код](#сгенерированный-cc-код)
+- [Генерация HEX-файла и пример пайплайна для производства и разработки](#генерация-hex-файла-и-пример-пайплайна-для-производства-и-разработки)
+  - [Первоначальная прошивка нового устройства на производстве](#первоначальная-прошивка-нового-устройства-на-производстве)
+  - [Сборка прошивки](#сборка-прошивки)
+  - [Пример скрипта для формирования HEX-файла по описанию диаграммы](#пример-скрипта-для-формирования-hex-файла-по-описанию-диаграммы)
 
 
 # Краткое описание возможностей утилиты Umba HEX
@@ -70,7 +74,8 @@
   многобайтных значений на диаграммах);
   `crc`, `poly`, `seed` - CRC-поле и его параметры.
 
-**Важно:** синтаксис `+1: "Block name"` для задания количества бит/байт в текущий момент не поддерживается (что-то я профакапил).
+**Важно:** синтаксис `+1: "Block name"` для задания количества бит/байт в текущий момент не поддерживается
+(что-то я профакапил, или, что тоже вероятно, эта фича в mermaid добавлена уже после того, как я делал свою реализацию).
 
 
 # Пример описания протокола обмена
@@ -259,12 +264,12 @@ packet-beta %%#! byte-diagram
 %% char[16]  : "Device Name"                  %% 0-15
 0-13      : "Device Name"                  %%#! ascii-z block %% 0-13
 uint64    : "uint64"
-uint8     : "HwHi"                         %% Hardware Revision Major
-uint8     : "HwLo"                         %% Hardware Revision Minor
-uint16    : "ManY"                         %% Manufactured Year
-uint8     : "ManM"                         %% Manufactured Month
-uint8     : "ManD"                         %% Manufactured Day
-uint16    : "Batch"                        %%
+uint8     : "Hardware Revision Major"
+uint8     : "Hardware Revision Minor"
+uint16    : "Manufactured Year"
+uint8     : "Manufactured Month"
+uint8     : "Manufactured Day"
+uint16    : "Batch"
 %% 24-31     : "Serial Number"                %%#! block
 30-37     : "Serial Number"                %%#! block
 %% 26-33     : "Serial Number"                %%#! block
@@ -275,15 +280,15 @@ uint16    : "SignatureBE"                  %%#! be
 %%#! org +48: "Software Info"
 %% #! org auto : "Software Info"
 
-uint16    : "Firmware Version Major"       %%
-uint16    : "Firmware Version Minor"       %%
-uint16    : "Firmware Version Build"       %%
-uint16    : "Build Year"                   %%
-uint8     : "Build Month"                  %%
-uint8     : "Build Day"                    %%
-uint8     : "Build Hour"                   %%
-uint8     : "Build Minute"                 %%
-%% uint8     : "Build Second"              %%
+uint16    : "Firmware Version Major"
+uint16    : "Firmware Version Minor"
+uint16    : "Firmware Version Build"
+uint16    : "Build Year"
+uint8     : "Build Month"
+uint8     : "Build Day"
+uint8     : "Build Hour"
+uint8     : "Build Minute"
+%% uint8     : "Build Second"
 char[16]  : "Version Info String"    %%#! ascii-z block %% Must contain version (Major.Minor.Build) the same as in uint16 fields above
 char[16]  : "Built Date Time String" %%#! ascii-z block %% Must contain date and time the same as in integer fields above
 char      : "signleChar1"
@@ -319,11 +324,11 @@ struct HarwareInfo
 {
     std::char       deviceName[14];           // 0 - 13
     std::uint64_t   uint64;                   // 14 - 21
-    std::uint8_t    hwHi;                     // 22
-    std::uint8_t    hwLo;                     // 23
-    std::uint16_t   manY;                     // 24 - 25
-    std::uint8_t    manM;                     // 26
-    std::uint8_t    manD;                     // 27
+    std::uint8_t    hardwareRevisionMajor;    // 22
+    std::uint8_t    hardwareRevisionMinor;    // 23
+    std::uint16_t   manufacturedYear;         // 24 - 25
+    std::uint8_t    manufacturedMonth;        // 26
+    std::uint8_t    manufacturedDay;          // 27
     std::uint16_t   batch;                    // 28 - 29
     std::uint8_t    serialNumber[8];          // 30 - 37
     std::uint16_t   signatureLe;              // 38 - 39
@@ -371,6 +376,96 @@ struct TestExample
 
 }; // struct TestExample
 /* #pragma pack(pop) */
+```
+
+
+# Генерация HEX-файла и пример пайплайна для производства и разработки
+
+Прошивка в устройстве может состоять из нескольких частей: метаинформация
+и собственно, сама исполняемая прошивка. Метаинформация, к примеру, может состоять
+из описания аппаратной части и описания программной части.
+
+
+## Первоначальная прошивка нового устройства на производстве
+
+Метаинформация об аппаратной части зашивается один раз при первоначальной прошивке
+устройства после сборки, туда зашивается актуальная информация о ревизии платы, дате сборки,
+номере партии, серийном номере устройства. Для генерации такой информации можно использовать
+утилиту **Umba HEX**.
+
+Также в при первоначальной прошивке может зашиваться базовый загрузчик (bootloader), который
+проверяет при  прошивке только метаинформацию об аппаратной части в устройстве и в новой прошивке,
+и выдаёт отказ при их несовпадении.
+
+Метаинформацию об аппаратной части можно генерировать в отдельный HEX-файл с последующим объединением
+HEX-файлов загрузчика и метаинформации об аппаратуре, или можно генерировать
+в существующий файл (загрузчика).
+
+
+## Сборка прошивки
+
+При сборке прошивки при помощи утилиты **Umba HEX** генерируется метаинформация по аппаратуре, для которой
+собирается прошивка, а также о версии собираемой прошивки.
+
+В прошивке также имеется загрузчик, который проверяет аппаратную версию платы, а также версию прошивки.
+
+Для генерации метаинформации о программной части также может использоваться утилита **Umba HEX**.
+При этом эта информация генерируется в готовый файл прошивки, или в отдельные файлы для последующего объединения
+сторонними утилитами.
+
+Адреса блоков метаинформации утилитой **Umba HEX** могут выводится в C/C++ файл, описания структур
+метаинформации также выводятся в C/C++ файл, и эти исходные файлы используются при сборке прошивки.
+Таким образом загрузчик в прошивке будет знать, где метаинформация расположена во флэш-памяти,
+знает её раскладку, и может произвести нужные проверки - не позволить зашить прошивку от платы другой ревизии
+не позволить прошить прошивку с более старой версией firmware или с более старой датой сборки.
+
+
+## Пример скрипта для формирования HEX-файла по описанию диаграммы
+
+Для генерации HEX-файла утилита **Umba HEX** принимает:
+1) описание раскладки (диаграмму); 2) "скрипт" для задания значений полей.
+
+Имена полей сквозные для всей диаграммы, т.е. они должны быть уникальными для всего файла диаграммы.
+
+В HEX-файл записываются только те поля, которые явно задаются, таким образом, можно в одной диаграмме
+описать как метаинформацию об аппаратуре, так и метаинформацию о firmware, но заполнять/генерировать
+HEX-файлы по ним по отдельности.
+
+**Пример "скрипта" для формирования HEX-файла**
+
+```
+# 42 4D
+"SignatureLE" : 'BM'
+"SignatureBE" : 'BM'
+
+# 41 53 34 30 30 37 00 00 00 00 00 00 00 00 00 00
+Device Name:"AS4007"
+
+# 45 53 34 30 30 37
+'Device Name[0]':'E'
+
+Hardware Revision Major : 1
+Hardware Revision Minor : 3
+Manufactured Year : 2025
+Manufactured Month: 2
+Manufactured Day  : 18
+Batch: 1001
+"Serial Number" : 81 BE CA FE DE AD BE AF
+
+"Firmware Version Major" : 3
+"Firmware Version Minor" : 15
+"Firmware Version Build" : 1365
+
+
+# uint16    : "Build Year"
+# uint8     : "Build Month"
+# uint8     : "Build Day"
+# uint8     : "Build Hour"
+# uint8     : "Build Minute"
+# uint8     : "Build Second"
+
+"Version Info String"    : "debug"
+"Built Date Time String" : "Feb 12, 2025"
 ```
 
 

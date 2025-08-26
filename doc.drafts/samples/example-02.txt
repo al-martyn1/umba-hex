@@ -31,12 +31,12 @@ packet-beta %%#! byte-diagram
 %% char[16]  : "Device Name"                  %% 0-15
 0-13      : "Device Name"                  %%#! ascii-z block %% 0-13
 uint64    : "uint64"
-uint8     : "HwHi"                         %% Hardware Revision Major
-uint8     : "HwLo"                         %% Hardware Revision Minor
-uint16    : "ManY"                         %% Manufactured Year
-uint8     : "ManM"                         %% Manufactured Month
-uint8     : "ManD"                         %% Manufactured Day
-uint16    : "Batch"                        %%
+uint8     : "Hardware Revision Major"
+uint8     : "Hardware Revision Minor"
+uint16    : "Manufactured Year"
+uint8     : "Manufactured Month"
+uint8     : "Manufactured Day"
+uint16    : "Batch"
 %% 24-31     : "Serial Number"                %%#! block
 30-37     : "Serial Number"                %%#! block
 %% 26-33     : "Serial Number"                %%#! block
@@ -47,15 +47,15 @@ uint16    : "SignatureBE"                  %%#! be
 %%#! org +48: "Software Info"
 %% #! org auto : "Software Info"
 
-uint16    : "Firmware Version Major"       %% 
-uint16    : "Firmware Version Minor"       %% 
-uint16    : "Firmware Version Build"       %% 
-uint16    : "Build Year"                   %%
-uint8     : "Build Month"                  %%
-uint8     : "Build Day"                    %%
-uint8     : "Build Hour"                   %%
-uint8     : "Build Minute"                 %%
-%% uint8     : "Build Second"              %%
+uint16    : "Firmware Version Major"
+uint16    : "Firmware Version Minor"
+uint16    : "Firmware Version Build"
+uint16    : "Build Year"
+uint8     : "Build Month"
+uint8     : "Build Day"
+uint8     : "Build Hour"
+uint8     : "Build Minute"
+%% uint8     : "Build Second"
 char[16]  : "Version Info String"    %%#! ascii-z block %% Must contain version (Major.Minor.Build) the same as in uint16 fields above
 char[16]  : "Built Date Time String" %%#! ascii-z block %% Must contain date and time the same as in integer fields above
 char      : "signleChar1"
